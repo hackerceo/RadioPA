@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="ui-mobile">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Radio PA System by Brooklyn Tactical</title>
+		<link rel="stylesheet" href="jquery-mobile.css">
+		<link rel="stylesheet" href="theme-classic.css">
+		<script src="jquery.js"></script>
+		<script src="jquery-mobile.js"></script>
+		<script>
+			function ota() {
+				$.ajax({
+					url: "/api/ota",
+					method: "POST",
+					data: {
+						ssid: $('#ssid').val(),
+						pass: $('#password').val()
+					}
+				});
+			}
+			function saveReal() {
+				$.ajax({
+					url: "/api/ota",
+					method: "POST",
+					data: {
+						ssid: $('#ssid').val(),
+						pass: $('#password').val()
+					}
+				});
+			}
+			function init() {
+				// visual hacks for the current voltage slider
+				let slider = $('#sldrRead');
+				slider.slider({disabled:true});
+				$('.ui-slider-handle', slider.parent()).remove();
+				
+				getUnitId();
+				getVoltage();
+				getAlarm();
+				
+				// update the voltage reading every 10 seconds
+				setInterval(getVoltage, 10000);
+			}
+			function getUnitId() {
+				$.ajax({
+					url: "/api/id",
+					success: (data) => {
+						$('#unitId').val(data);
+					}
+				});
+			}
+			function getVoltage() {
+				$.ajax({
+					url: "/api/voltage",
+					success: (data) => {
+						let slider = $('#sldrRead');
+						slider.val(data);
+						slider.slider("refresh");
+						slider.removeClass('ui-state-disabled');
+						$('.ui-state-disabled', slider.parent()).removeClass('ui-state-disabled');
+					}
+				});
+			}
+			function getAlarm() {
+				$.ajax({
+					method: "GET",
+					url: "/api/alarm",
+					success: (data) => {
+						let slider = $('#sldrAlarm');
+						slider.val(data);
+						slider.slider("refresh");
+					}
+				});
+			}
+			
+			function setAlarm() {
+				$.ajax({
+					method: "POST",
+					url: "/api/alarm",
+					data: {alarm: $('#sldrAlarm').val()},
+					success: (data) => {
+						alert('saved');
+					}
+				});
+			}
+			
+			function save() {
+				setTimeout(()=>{
+					alert("Run 'setAlarm()'");
+					window.location.reload();
+				},200);
+			}
+			
+			$(document).ready(() => { init(); });
+		</script>
+	</head>
+	<body class="ui-mobile-viewport ui-overlay-c">
+		<div data-role="page" class="ui-page ui-body-c" tabindex="0" data-url="main">
+			<div data-role="header" style="text-align:center; font-size:1.6em; line-height:2em;">Radio PA System</div>
+			<div data-role="body" style="margin:2em;">
+				<p>
+				<form>
+					<ul data-role="listview" data-inset="true">
+						<li data-role="fieldcontain">
+							<label for="unitId">Unit ID:</label>
+							<input type="text" name="unitId" id="unitId" value="" readonly="true">
+						</li>
+						<li data-role="fieldcontain">
+							<label for="sldrRead">Current Voltage:</label>
+							<input type="range" name="sldrRead" id="sldrRead" value="0" min="0" max="1024" data-highlight="true">
+						</li>
+						<li data-role="fieldcontain">
+							<label for="sldrAlarm">Alarm Voltage:</label>
+							<input type="range" name="sldrAlarm" id="sldrAlarm" value="0" min="0" max="1024" data-highlight="true">
+						</li>
+					</ul>		
+				</form>
+				</p>
+				<h3 style="font-size:20px; text-align:center;">By <a href="http://brooklyntactical.com">Brooklyn Tactical</a></h3>
+			</div>
+			<div data-role="footer" data-position="fixed">
+				<div data-role="navbar"><ul>
+					<li><a href="#firmware" data-role="button" data-icon="alert" data-theme="b">Update Firmware</a></li>
+					<li><a href="#" data-role="button" data-icon="check" data-theme="b" onclick="save()">Save</a></li>
+				</ul></div>
+			</div>
+		</div>
+		<div data-role="page" data-url="firmware" class="ui-page ui-body-c" tabindex="0">
+			<div data-role="header" style="text-align:center; font-size:1.6em; line-height:2em;">Radio PA System</div>
+			<div data-role="body" style="margin:2em;">
+				<p>
+				<form>
+					<ul data-role="listview" data-inset="true">
+						<li data-role="fieldcontain">
+							<label for="ssid">SSID:</label>
+							<input type="text" name="ssid" id="ssid" value="">
+						</li>
+						<li data-role="fieldcontain">
+							<label for="password">Password:</label>
+							<input type="text" name="password" id="password" value="">
+						</li>
+					</ul>		
+				</form>
+				</p>
+			</div>
+			<div data-role="footer" data-position="fixed">
+				<div data-role="navbar"><ul>
+					<li><a href="#main" data-role="button" data-icon="back" data-theme="b">Cancel</a></li>
+					<li><a href="#" data-role="button" data-icon="cloud" data-theme="b" onclick="ota()">Connect</a></li>
+				</ul></div>
+			</div>
+		</div>
+	</body>
+</html>
