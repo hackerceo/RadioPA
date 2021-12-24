@@ -1,1 +1,3 @@
 .idea
+/hardware
+/firmware/data/web/*.gz
