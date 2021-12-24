@@ -11,6 +11,7 @@
 #define EVNT_BATT_LOW 1 
 int global_alarm_threshold;
 
+String global_password;
 
 // for neopixel lighting
 #define PIN_WS2812 2
@@ -47,30 +48,56 @@ State stateBattery_startup([](){
 
     // default to 0
     global_alarm_threshold = 0;
-    // read the alarm threshold from file
+    // read the alarm threshold from file ================================
     if (SPIFFS.exists("/alarm")) {
-      Serial.println("read the value from file");
-      File alarm_file = SPIFFS.open("/alarm", "r");
-      if (!alarm_file) {
+      Serial.println("read the alarm value from file");
+      File tmp_file = SPIFFS.open("/alarm", "r");
+      if (!tmp_file) {
         Serial.println("Unable to open file for read: alarm");
       } else {
         char readarray[2];
-        alarm_file.readBytes(readarray, 2);
+        tmp_file.readBytes(readarray, 2);
         global_alarm_threshold = word(readarray[0], readarray[1]);
-        alarm_file.close();
+        tmp_file.close();
       }
     } else {
       Serial.println("write the value to file");
-      File alarm_file = SPIFFS.open("/alarm", "w");
-      if (!alarm_file) {
+      File tmp_file = SPIFFS.open("/alarm", "w");
+      if (!tmp_file) {
         Serial.println("Unable to open file for write: alarm");
       } else {
-        alarm_file.write(highByte(global_alarm_threshold));
-        alarm_file.write(lowByte(global_alarm_threshold));
-        alarm_file.close();
+        tmp_file.write(highByte(global_alarm_threshold));
+        tmp_file.write(lowByte(global_alarm_threshold));
+        tmp_file.close();
+      }
+    }
+    // read the password from file =======================================
+    global_password = String("password");
+    if (SPIFFS.exists("/password")) {
+      Serial.print("read the password from file: '");
+      File tmp_file = SPIFFS.open("/password", "r");
+      if (!tmp_file) {
+        Serial.println("Unable to open file for read: password");
+        Serial.println("Using default password: '" + global_password + "'");        
+      } else {
+        String readval = tmp_file.readString();
+        global_password = readval;
+        tmp_file.close();
+        Serial.print(global_password);
+        Serial.println("'");
+      }
+    } else {
+      Serial.println("write the password value to file");
+      File tmp_file = SPIFFS.open("/password", "w");
+      if (!tmp_file) {
+        Serial.println("Unable to open file for write: password");
+      } else {
+        tmp_file.write(global_password.c_str(), global_password.length());
+        tmp_file.close();
       }
     }
 
+    
     // switch to monitoring loop
     fsmBattery.trigger(EVNT_BATT_OK);
   }, 
@@ -99,7 +126,7 @@ State stateBattery_check([](){
     int sensorValue = analogRead(PIN_BAT_SENSE_ADC);
     Serial.println(sensorValue);
     if (sensorValue < global_alarm_threshold) {
-      fsmBattery.trigger(EVNT_BATT_LOW);    
+      fsmBattery.trigger(EVNT_BATT_LOW);
     } else {
       fsmBattery.trigger(EVNT_BATT_OK);
     }
@@ -121,6 +148,8 @@ State stateBattery_warn(
 );
 
 Fsm fsmBattery(&stateBattery_startup);
+extern Fsm fsmNetwork;
+
 // ==========================================================
 
 
@@ -129,6 +158,11 @@ Fsm fsmBattery(&stateBattery_startup);
 
 void setup() {
   Serial.begin(115200);
+  Serial.println(" ");
+  Serial.println("   [[ Radio-PA ]]");
+  Serial.println("By Brooklyn Tactical");
+  Serial.println(" (C)opyright 2021");
+  Serial.println(" ");
 
   if(!SPIFFS.begin()){
     Serial.println("An Error has occurred while mounting SPIFFS");
@@ -142,13 +176,11 @@ void setup() {
   fsmBattery.add_transition(&stateBattery_check, &stateBattery_warn, EVNT_BATT_LOW, NULL);
   fsmBattery.add_transition(&stateBattery_check, &stateBattery_wait, EVNT_BATT_OK, NULL);
 
-  // networking
+  Serial.println("calling networking_setup()");
   networking_setup();
-
 }
 
 void loop() {
   fsmBattery.run_machine();
   networking_loop();
-
 }
