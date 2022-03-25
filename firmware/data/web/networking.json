@@ -1,0 +1,21 @@
+{
+	"channel": 1,
+	"ssid": "RadioPA-475F",
+	"password": null,
+	"relays": [
+		{"device": "0", "name":"Relay1"},
+		{"device": "1", "name":"Relay2"},
+		{"device": "2", "name":"Relay3"}
+	],
+	"nodes": [
+		{"device": "10", "name":"PA-Staging"},
+		{"device": "11", "name":"PA-Oil"},
+		{"device": "12", "name":"PA-Moose"},
+		{"device": "13", "name":"PA-Embassy"},
+		{"device": "14", "name":"Prop-Red"},
+		{"device": "15", "name":"Prop-Blue"}
+		{"device": "16", "name":"Prop-Oil"},
+		{"device": "17", "name":"Prop-Moose"}
+		{"device": "18", "name":"Prop-Embassy"}
+	]
+}

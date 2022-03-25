@@ -1,0 +1,20 @@
+{
+	"descriptions": [
+		{"folder":1, "file":1, "name": "intro", "descript": "introduction to field rules"},
+		{"folder":1, "file":2, "name": "intro2", "descript": "safety briefing"},
+		{"folder":2, "file":15, "name": "Red Capture Oil", "descript": ""},
+		{"folder":2, "file":16, "name": "Red Capture Moose", "descript": ""},
+		{"folder":2, "file":17, "name": "Red Capture Embassy", "descript": ""},
+		{"folder":2, "file":18, "name": "Blue Capture Oil", "descript": ""},
+		{"folder":2, "file":19, "name": "Blue Capture Moose", "descript": ""},
+		{"folder":2, "file":20, "name": "Blue Capture Embassy", "descript": ""}
+	]
+	"triggers": [
+		{"device": 16, "game": 1, "event": 2, "team": 1, "folder":2, "file":15},
+		{"device": 16, "game": 1, "event": 2, "team": 2, "folder":2, "file":18},
+		{"device": 17, "game": 1, "event": 2, "team": 1, "folder":2, "file":16},
+		{"device": 17, "game": 1, "event": 2, "team": 2, "folder":2, "file":19},
+		{"device": 18, "game": 1, "event": 2, "team": 1, "folder":2, "file":17},
+		{"device": 18, "game": 1, "event": 2, "team": 2, "folder":2, "file":20}
+	]
+}
